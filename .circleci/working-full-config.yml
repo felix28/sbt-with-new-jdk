@@ -2,10 +2,7 @@
 # This allows defining a docker image to reuse across jobs.
 # visit https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-executors to learn more.
 # batoy comments
-# https://circleci.com/docs/2.0/language-scala
-# https://circleci.com/docs/2.0/local-cli
-# https://circleci.com/developer/images
-# https://circleci.com/developer/orbs/orb/okode/common
+# https://circleci.com/docs/2.0/language-scala/
 
 version: 2.1
 
@@ -15,7 +12,7 @@ executors:
       - image: cimg/openjdk:11.0.2
     environment:
       - SBT_VERSION: 1.2.8
-    working_directory: ~/sbt-with-new-jdk
+    working_directory: ~/dmp-spark-jobs
 jobs:
   pre-integration-build:
     executor: scala-builder
@@ -27,14 +24,11 @@ jobs:
       - run:
           name: Installing SDKMAN!
           command: |
-            curl -s "https://get.sdkman.io?rcupdate=false" | bash
+            curl -s "https://get.sdkman.io" | bash
             echo -e '\nsource "/root/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
       - run: sdk version
       - run: sdk install sbt $SBT_VERSION
-      - run: sbt assembly
-      - persist_to_workspace:
-          root: .
-          paths: .
+      - run: sbt test
 workflows:
   version: 2
   build:

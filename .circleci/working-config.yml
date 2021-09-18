@@ -1,0 +1,19 @@
+# Note that the following stanza uses CircleCI 2.1 to make use of a Reusable Executor
+# This allows defining a docker image to reuse across jobs.
+# visit https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-executors to learn more.
+
+version: 2.1
+
+jobs:
+  pre-integration-build:
+    docker:
+      - image: cimg/openjdk:11.0.1
+    working_directory: ~/sbt-with-new-jdk
+    steps:
+      - checkout
+      - run: java --version
+workflows:
+  version: 2
+  build:
+    jobs:
+      - pre-integration-build

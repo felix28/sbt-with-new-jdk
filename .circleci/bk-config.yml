@@ -1,21 +1,23 @@
 # Note that the following stanza uses CircleCI 2.1 to make use of a Reusable Executor
 # This allows defining a docker image to reuse across jobs.
 # visit https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-executors to learn more.
-# batoy comments
-# https://circleci.com/docs/2.0/language-scala
-# https://circleci.com/docs/2.0/local-cli
-# https://circleci.com/developer/images
-# https://circleci.com/developer/orbs/orb/okode/common
 
 version: 2.1
 
 executors:
+  aws-downloader:
+    docker:
+      - image: cimg/python:2.7.16
+    working_directory: ~/sbt-with-new-jdk
   scala-builder:
     docker:
-      - image: cimg/openjdk:11.0.2
+      - image: cimg/openjdk:11.0.0
     environment:
       - SBT_VERSION: 1.2.8
     working_directory: ~/sbt-with-new-jdk
+orbs:
+  aws-ecr: circleci/aws-ecr@7.0.0
+  conftest: kenfdev/conftest-orb@0.0.9
 jobs:
   pre-integration-build:
     executor: scala-builder
@@ -23,18 +25,13 @@ jobs:
       SBT_OPTS: -Xmx4G -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled
     steps:
       - checkout
-      - run: java --version
       - run:
           name: Installing SDKMAN!
           command: |
-            curl -s "https://get.sdkman.io?rcupdate=false" | bash
+            curl -s "https://get.sdkman.io" | bash
             echo -e '\nsource "/root/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
       - run: sdk version
-      - run: sdk install sbt $SBT_VERSION
-      - run: sbt assembly
-      - persist_to_workspace:
-          root: .
-          paths: .
+      - run: java --version
 workflows:
   version: 2
   build:
