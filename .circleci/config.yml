@@ -6,6 +6,7 @@
 # https://circleci.com/docs/2.0/local-cli
 # https://circleci.com/developer/images
 # https://circleci.com/developer/orbs/orb/okode/common
+# circleci local execute --job pre-integration-build
 
 version: 2.1
 
@@ -31,7 +32,10 @@ jobs:
             echo -e '\nsource "/root/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
       - run: sdk version
       - run: sdk install sbt $SBT_VERSION
-      - run: sbt assembly
+      - run:
+          name: SBT Assembly
+          no_output_timeout: 30m
+          command: sbt assembly
       - persist_to_workspace:
           root: .
           paths: .
